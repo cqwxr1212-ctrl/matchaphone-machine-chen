@@ -62,7 +62,9 @@ export function trustedMobileHomeViewportHeight(input: TrustedMobileHomeViewport
   const layoutCandidates = [finitePositive(input.innerHeight), finitePositive(input.clientHeight)].filter((value): value is number => value !== undefined);
   const screenCandidates = [finitePositive(input.screenAvailHeight), finitePositive(input.screenHeight)].filter((value): value is number => value !== undefined);
   const candidates = [visualBottom, ...layoutCandidates];
-  const layoutReference = layoutCandidates.length ? Math.min(...layoutCandidates) : visualBottom;
+  // 布局视口候选取“较大值”：iOS 全屏 PWA 下 innerHeight 与 clientHeight 偶尔会不一致，
+  // 取最小值会把偏小的那个错误值当成真值，导致画布底部留出一条空白。
+  const layoutReference = layoutCandidates.length ? Math.max(...layoutCandidates) : visualBottom;
   if (layoutReference && screenCandidates.length) {
     const screenReference = Math.min(...screenCandidates);
     // Only trust screen CSS pixels when they are in the same scale as the layout viewport.
